@@ -5,7 +5,6 @@ within the slave-rotor framework.
 Computes the 2×2 Green's function matrix G(k,ω) and its determinant for a single
 high‑symmetry k‑point, using converged slave‑rotor parameters loaded from .mat files.
 
-Transcribed from MATLAB and optimised with NumPy/Numba.
 Author: Manuel Fernandez Lopez
 Date: 2026
 """
@@ -50,7 +49,7 @@ def generate_k_grid(N1, N2, N3, b1, b2, b3):
 kx, ky, kz = generate_k_grid(N1, N2, N3, b1, b2, b3)
 
 # ----------------------------------------------------------------------
-# High‑symmetry path indices (exact replica of MATLAB logic)
+# High‑symmetry path indices 
 # ----------------------------------------------------------------------
 def generate_path_indices(N):
     """Return 0‑based index arrays P1, Q1, R1 for the k‑path."""
@@ -850,11 +849,7 @@ def bz_sums(p1, q1, r1, w, eta, beta,
                     V_shift = V[sp, sq, sr]
                     ak_pqr = ak[p, q, r]
                     En_shift = En[sp, sq, sr]
-                    Ep_shift = Ep[sp, q, r]  # careful: original code uses Ep[sp, sq, sr]? Actually check: in branch 8, they use Ep(p1-p+N1,q1-q+N2,r1-r+N3). Yes, that's correct.
-                    # Actually the original code uses Ep(p1-p+N1,q1-q+N2,r1-r+N3). So we need Ep[sp, sq, sr] (consistent with above). I'll fix: 
-                    # It should be Ep_shift = Ep[sp, sq, sr] (already defined as such)
-                    # So I'll keep it as Ep_shift = Ep[sp, sq, sr] but the variable was overwritten incorrectly. Let's ensure we use the correct indices.
-                    # I'll reassign correctly:
+                    Ep_shift = Ep[sp, q, r]  
                     En_shift = En[sp, sq, sr]
                     Ep_shift = Ep[sp, sq, sr]
 
@@ -927,9 +922,9 @@ def bz_sums(p1, q1, r1, w, eta, beta,
     return sum1, sum2, sum3, count
 
 # ----------------------------------------------------------------------
-# Main calculation: only the first k‑point of the path (as in original)
+# Main calculation: only the first k‑point of the path 
 # ----------------------------------------------------------------------
-# Only one k‑point (f=1) to match MATLAB's `for f=1:1;`
+# Only one k-point
 f_idx = 0   # first point in the path
 p1 = P1[f_idx]
 q1 = Q1[f_idx]
@@ -950,7 +945,7 @@ for iw, w in enumerate(tqdm(W, desc="Frequencies")):
                                   V, Ep, En, ak, Qf, U,
                                   N1, N2, N3)
 
-    # Local term (same as MATLAB: Z * ... /2 )
+    # Local term
     local_diag = Z * (1.0 / (w + 1j*eta1 - ak[p1,q1,r1]) +
                       1.0 / (w + 1j*eta1 + ak[p1,q1,r1])) / 2.0
     local_off = Z * Qf * V[p1,q1,r1] / ak[p1,q1,r1] * \
@@ -972,12 +967,12 @@ for iw, w in enumerate(tqdm(W, desc="Frequencies")):
     Ga[iw] = np.linalg.det(A)
     Ga2[iw] = -1.0 / np.pi * np.imag(A[0,0] + A[1,1])
 
-    # (Optional) print like MATLAB
+    # (Optional) 
     if iw % 10 == 0:
         print(f"ω = {w:.4f}, -1/π Im TrG = {Ga2[iw]:.6f}")
 
 # ----------------------------------------------------------------------
-# Save results to .mat files (compatible with MATLAB)
+# Save results to .mat files 
 # ----------------------------------------------------------------------
 sio.savemat('GreenDet41.mat', {'Ga': Ga.reshape(1,1,Nw)})   # shape (1,1,Nw)
 sio.savemat('Green41.mat', {'Green': Green_mat.reshape(1,1,Nw,2,2)})
