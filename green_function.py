@@ -173,7 +173,7 @@ T = 1e-15
 beta = 1 / T
 
 # ----------------------------------------------------------------------
-# Numba‑accelerated BZ summation (exact translation of MATLAB branches)
+# Numba‑accelerated BZ summation 
 # ----------------------------------------------------------------------
 @njit(parallel=False, cache=True)   # set parallel=True for extra speed (safe)
 def bz_sums(p1, q1, r1, w, eta, beta,
